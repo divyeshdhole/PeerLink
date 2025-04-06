@@ -1,9 +1,0 @@
-{
-  "dependencies": {
-    "dotenv": "^16.4.7",
-    "lucide-react": "^0.487.0",
-    "simple-peer": "^9.11.1",
-    "socket.io-client": "^4.8.1",
-    "styled-components": "^6.1.17"
-  }
-}
