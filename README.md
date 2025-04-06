@@ -38,7 +38,7 @@ PeerLink is a real-time collaborative platform designed for remote coding sessio
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/PeerLink.git
+   git clone https://github.com/divyeshdhole/PeerLink.git
    cd PeerLink
    ```
 
