@@ -11,10 +11,10 @@ const createPeerConnection = () => {
     }
 
     const peer = new Peer(undefined, {
-        host: 'localhost',
-        port: 3001,
+        host: import.meta.env.VITE_PEER_HOST,
+        port: parseInt(import.meta.env.VITE_PEER_PORT),
         path: '/peerjs',
-        secure: false,
+        secure: import.meta.env.VITE_PEER_SECURE === 'true',
         debug: 3,
         config: {
             iceServers: [
