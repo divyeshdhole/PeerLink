@@ -1,71 +1,110 @@
-# Collaborative Coding & Video Call App
+# PeerLink - Collaborative Coding & Video Call Platform
 
-This project is a real-time collaborative coding and meeting application. It allows users to join meetings, edit code collaboratively using a shared code editor, participate in video calls, and exchange messages via a chat box.
+PeerLink is a real-time collaborative platform designed for remote coding sessions, interviews, and team programming. It combines collaborative code editing with video conferencing capabilities, enabling users to work together seamlessly regardless of location.
 
----
+## ✨ Features
 
-## 🚀 Features
-
-- **Real-time Collaborative Coding**: Users in the same meeting can view and edit the same code in real-time.
-- **User Management**: Displays a list of users currently in the meeting.
-- **Video Calls**: Integrated video call functionality.
-- **Real-time Chat**: Users can send and receive messages instantly.
-- **Code Syncing**: Ensures the latest version of code is shared across all meeting participants.
-
----
+- **Collaborative Code Editor**: Edit code in real-time with syntax highlighting and multiple language support
+- **Video Conferencing**: Connect face-to-face with peers through integrated video calls
+- **Real-time Chat**: Communicate with other participants via text chat
+- **Code Execution**: Run and test code directly within the platform
+- **User Management**: See all meeting participants and their status
+- **Multiple Language Support**: JavaScript, Python, Java, C++, C# and more
 
 ## 🛠️ Tech Stack
 
-- **Frontend**: React, Vite, Monaco Editor
-- **Backend**: Express, Socket.IO
-- **WebSocket**: Real-time communication using Socket.IO
+### Frontend
+- **React** with Vite for fast development
+- **Monaco Editor** for powerful code editing
+- **Socket.IO Client** for real-time communication
+- **PeerJS** for WebRTC video connections
+- **Material UI** for responsive interface components
+- **Redux Toolkit** for state management
+- **TailwindCSS** for styling
 
----
+### Backend
+- **Express** for the server framework
+- **Socket.IO** for bidirectional communication
+- **PeerJS Server** for WebRTC signaling
+- **Judge0 API** integration for code execution
 
-## 📂 Project Structure
-
-### Client (`src`)
-- `MeetingPage.jsx`: Main page where users join meetings and collaborate.
-- `CodeEditor.jsx`: Code editor component using Monaco Editor.
-- `VideoCall.jsx`: Placeholder for video call functionality.
-- `ChatBox.jsx`: Chat box for real-time messaging.
-- `UserList.jsx`: Displays the list of participants in the meeting.
-
-### Server (`server.js`)
-- Handles real-time communication, user management, code synchronization, and disconnection events.
-
----
-
-## 🔧 Installation and Setup
+## 🚀 Getting Started
 
 ### Prerequisites
-- Node.js installed on your system.
+- Node.js (v14 or higher)
+- npm or yarn
 
-### Steps
+### Installation
+
 1. Clone the repository:
    ```bash
-   
-   git clone https://github.com/divyeshdhole/peerLink.git
+   git clone https://github.com/yourusername/PeerLink.git
    cd PeerLink
-   cd client
-   npm install
-   cd server
-   node index.js
-   cd client
-   npm run dev
-Usage
-Open the client at http://localhost:5173.
-Enter a meeting code and your username to join or start a new meeting.
-Share the meeting code with others to collaborate in real-time.
-📦 Environment Variables
-Ensure your environment is configured with the following variables:
+   ```
 
-FRONTEND_URL: URL of your frontend (e.g., http://localhost:5173).
-SERVER_PORT: Port for the backend server (default: 3001).
-🐛 Known Issues
- Video call feature placeholder (to be integrated).
- Chat may require additional enhancements.
-👥 Contributors
-Divyesh Dhole - Creator & Maintainer.
-📄 License
+2. Set up the server:
+   ```bash
+   cd Server
+   npm install
+   # Create .env file with required environment variables
+   npm start
+   ```
+
+3. Set up the client:
+   ```bash
+   cd Client
+   npm install
+   # Create .env file with required environment variables
+   npm run dev
+   ```
+
+4. Open your browser and navigate to `http://localhost:5173`
+
+## 🔧 Environment Variables
+
+### Server (.env)
+```
+PORT=3001
+JUDGE0_API_KEY=your_judge0_api_key
+```
+
+### Client (.env)
+```
+VITE_SERVER_URL=http://localhost:3001
+VITE_PEER_HOST=localhost
+VITE_PEER_PORT=3001
+VITE_PEER_PATH=/peerjs
+```
+
+## 📝 Usage
+
+1. Create or join a meeting by entering a meeting code
+2. Share the meeting code with collaborators
+3. Edit code together in real-time
+4. Use video and chat to communicate with team members
+5. Run and test your code directly in the editor
+
+## 🔍 Project Structure
+
+### Client
+- **src/pages**: Main application pages (MeetingPage, MeetingCreate, GetUsername)
+- **src/components**: Reusable UI components (VideoCall, ChatBox, CodeEditor, UserList)
+- **src/appStore**: Redux store configuration
+- **src/assets**: Static resources and images
+
+### Server
+- **index.js**: Main server file handling Socket.IO events, PeerJS server, and code execution
+
+## 👥 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 📄 License
+
 This project is licensed under the MIT License.
+
+## 🙏 Acknowledgements
+
+- Monaco Editor for the code editing capabilities
+- Socket.IO for the real-time communication infrastructure
+- PeerJS for WebRTC video functionality
