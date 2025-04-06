@@ -1,7 +1,18 @@
 {
+  "name": "peerlink-server",
+  "version": "1.0.0",
+  "description": "Server for PeerLink collaborative coding and meeting application",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
   "dependencies": {
-    "express": "^4.21.2",
-    "http": "^0.0.1-security",
-    "socket.io": "^4.8.1"
+    "express": "^4.18.2",
+    "socket.io": "^4.7.2",
+    "peer": "^1.0.1",
+    "axios": "^1.6.2",
+    "uuid": "^9.0.1",
+    "nodemon": "^3.0.1"
   }
 }
