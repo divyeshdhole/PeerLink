@@ -16,6 +16,7 @@ const MeetingPage = () => {
     const [notification, setNotification] = useState(null);
     const [showShareLink, setShowShareLink] = useState(false);
     const [isOnline, setIsOnline] = useState(navigator.onLine);
+    const [usernameError, setUsernameError] = useState(null);
     const userName = localStorage.getItem("userName");
     
     const mountedRef = useRef(false);
@@ -288,6 +289,34 @@ const MeetingPage = () => {
             socket.off('codeOutput', handleCodeOutput);
         };
     }, []);
+
+    // Handle username taken error
+    useEffect(() => {
+        const handleUsernameTaken = (data) => {
+            console.log("Username taken error:", data);
+            setUsernameError(data.message);
+            
+            // Show notification
+            setNotification({
+                message: data.message,
+                type: 'error',
+                timestamp: Date.now()
+            });
+            
+            // Redirect to username page after a delay with error message
+            setTimeout(() => {
+                navigate(`/username/${meetingCode}`, { 
+                    state: { error: data.message } 
+                });
+            }, 2000);
+        };
+
+        socket.on("usernameTaken", handleUsernameTaken);
+
+        return () => {
+            socket.off("usernameTaken", handleUsernameTaken);
+        };
+    }, [meetingCode, navigate]);
 
     return (
         <div className="flex flex-col min-h-screen">

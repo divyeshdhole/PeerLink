@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
+import socket from "../socket";
 
 const GetUsername = () => {
     const [userName, setUserName] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState("");
     const { meetingCode } = useParams();
+    const location = useLocation();
     const navigate = useNavigate();
 
     // Check if there's an existing username in localStorage
@@ -13,15 +16,21 @@ const GetUsername = () => {
         if (savedUserName) {
             setUserName(savedUserName);
         }
-    }, []);
+        
+        // Check if there's an error message in the location state
+        if (location.state && location.state.error) {
+            setError(location.state.error);
+        }
+    }, [location]);
 
     const handleJoinMeeting = () => {
         if (!userName.trim()) {
-            alert("Please enter your name to join the meeting.");
+            setError("Please enter your name to join the meeting.");
             return;
         }
 
         setIsLoading(true);
+        setError("");
 
         // Store username in localStorage
         localStorage.setItem("userName", userName);
@@ -73,6 +82,13 @@ const GetUsername = () => {
                     </p>
                 </div>
                 
+                {/* Error Message */}
+                {error && (
+                    <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+                        {error}
+                    </div>
+                )}
+                
                 {/* User Name Input */}
                 <div className="mb-6">
                     <label className="block text-sm font-medium text-slate-700 mb-1" htmlFor="userName">
@@ -88,7 +104,7 @@ const GetUsername = () => {
                             id="userName"
                             type="text"
                             placeholder="Enter your name"
-                            className="w-full pl-10 pr-3 py-3 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent text-lg"
+                            className={`w-full pl-10 pr-3 py-3 border ${error ? 'border-red-500' : 'border-slate-300'} rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent text-lg`}
                             value={userName}
                             onChange={(e) => setUserName(e.target.value)}
                             onKeyDown={handleKeyDown}

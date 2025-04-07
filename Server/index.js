@@ -129,14 +129,25 @@ io.on("connection", (socket) => {
         console.log(`${userName} joining ${meetingCode} with peerId ${peerId}`);
         currentMeetingCode = meetingCode;
 
-        // Remove any existing instances of this user from the meeting
+        // Check if username already exists in the meeting
         if (meetings[meetingCode]) {
+            const existingUserWithSameName = meetings[meetingCode].find(user => 
+                user.name === userName
+            );
+            
+            if (existingUserWithSameName) {
+                // Username already exists, send error back to client
+                socket.emit("usernameTaken", { message: "Username is already taken in this meeting" });
+                return;
+            }
+            
+            // Remove any existing instances of this user from the meeting
             const existingUser = meetings[meetingCode].find(user => 
-                user.name === userName || user.id === socket.id
+                user.id === socket.id
             );
             if (existingUser) {
                 meetings[meetingCode] = meetings[meetingCode].filter(user => 
-                    user.name !== userName && user.id !== socket.id
+                    user.id !== socket.id
                 );
                 // Notify others about the user being removed
                 socket.to(meetingCode).emit("userDisconnected", existingUser.peerId);
