@@ -227,19 +227,23 @@ const MeetingPage = () => {
         });
         
         // Handle meeting closed event
-        socket.on("meetingClosed", () => {
-            console.log("Meeting closed event received:");
+        socket.on("meetingClosed", (data) => {
+            console.log("Meeting closed event received:", data);
             
             // Show notification
             setNotification({
-                message: "Meeting has been closed as all participants have left",
+                message: data.message,
                 type: 'error',
                 timestamp: Date.now()
             });
             
-            // Redirect to home page with error message after 3 seconds
+            // Redirect to home page after a delay
             setTimeout(() => {
-                navigate("/", { state: { error: "Meeting has been closed as all participants have left" } });
+                navigate("/", { 
+                    state: { 
+                        error: "The meeting has ended because all participants have left." 
+                    } 
+                });
             }, 3000);
         });
 

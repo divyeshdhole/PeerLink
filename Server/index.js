@@ -1321,12 +1321,6 @@ io.on("connection", (socket) => {
                 // Clean up empty meetings
                 if (meetings[meetingCode].length === 0) {
                     console.log(`Meeting ${meetingCode} is empty, cleaning up...`);
-                    
-                    // Notify all clients in the meeting that it's been closed
-                    io.to(meetingCode).emit("meetingClosed", { 
-                        message: "Meeting has been closed because all participants have left." 
-                    });
-                    
                     delete meetings[meetingCode];
                     delete meetingCodes[meetingCode];
                     delete hosted[meetingCode];
@@ -1355,12 +1349,6 @@ io.on("connection", (socket) => {
                 // Clean up empty meetings
                 if (meetings[currentMeetingCode].length === 0) {
                     console.log(`Meeting ${currentMeetingCode} is empty, cleaning up...`);
-                    
-                    // Notify all clients in the meeting that it's been closed
-                    io.to(currentMeetingCode).emit("meetingClosed", { 
-                        message: "Meeting has been closed because all participants have left." 
-                    });
-                    
                     delete meetings[currentMeetingCode];
                     delete meetingCodes[currentMeetingCode];
                     delete hosted[currentMeetingCode];
