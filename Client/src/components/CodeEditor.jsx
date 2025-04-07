@@ -134,8 +134,18 @@ const LANGUAGE_MONACO_MAP = {
 };
 
 const CodeEditor = ({ meetingCode, onRunCode, consoleOutput }) => {
-  const [code, setCode] = useState(LANGUAGE_BOILERPLATE.javascript);
-  const [language, setLanguage] = useState("javascript");
+  // Get initial language from localStorage or default to javascript
+  const [language, setLanguage] = useState(() => {
+    const savedLanguage = localStorage.getItem(`language_${meetingCode}`);
+    return savedLanguage || "javascript";
+  });
+  
+  // Get initial code based on saved language or default to javascript
+  const [code, setCode] = useState(() => {
+    const savedLanguage = localStorage.getItem(`language_${meetingCode}`);
+    return LANGUAGE_BOILERPLATE[savedLanguage || "javascript"];
+  });
+  
   const [isRunning, setIsRunning] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [input, setInput] = useState("");
@@ -210,6 +220,9 @@ const CodeEditor = ({ meetingCode, onRunCode, consoleOutput }) => {
     const newLanguage = e.target.value;
     console.log(`Changing language to ${newLanguage}`);
     
+    // Save the selected language to localStorage
+    localStorage.setItem(`language_${meetingCode}`, newLanguage);
+    
     // If the code is the default boilerplate for the previous language,
     // update it to the boilerplate for the new language
     if (LANGUAGE_BOILERPLATE[language] === code) {
@@ -242,6 +255,8 @@ const CodeEditor = ({ meetingCode, onRunCode, consoleOutput }) => {
       
       if (newLanguage && LANGUAGES.some(l => l.id === newLanguage)) {
         setLanguage(newLanguage);
+        // Update localStorage with the new language
+        localStorage.setItem(`language_${meetingCode}`, newLanguage);
       }
       
       if (newCode) {
@@ -249,41 +264,32 @@ const CodeEditor = ({ meetingCode, onRunCode, consoleOutput }) => {
       }
     };
 
-    // Listen for code execution results
-    const handleCodeOutput = ({ output, language: newLanguage, code: newCode }) => {
-      console.log(`Received code output with language: ${newLanguage}`);
+    // Request current meeting state when joining
+    socket.emit("getMeetingState", { meetingCode });
+
+    // Listen for meeting state updates
+    const handleMeetingState = ({ code: currentCode, language: currentLanguage }) => {
+      console.log(`Received meeting state - language: ${currentLanguage}`);
       
-      // Check if the output contains an error
-      const hasErrorInOutput = output && (
-        output.includes("Error:") || 
-        output.includes("ERROR") || 
-        output.includes("error") || 
-        output.includes("Traceback") ||
-        output.includes("SyntaxError") ||
-        output.includes("Compilation failed")
-      );
-      
-      setHasError(hasErrorInOutput);
-      setIsRunning(false); // Ensure running state is reset when output is received
-      
-      if (newLanguage && LANGUAGES.some(l => l.id === newLanguage)) {
-        setLanguage(newLanguage);
+      if (currentLanguage && LANGUAGES.some(l => l.id === currentLanguage)) {
+        setLanguage(currentLanguage);
+        localStorage.setItem(`language_${meetingCode}`, currentLanguage);
       }
       
-      if (newCode) {
-        setCode(newCode);
+      if (currentCode) {
+        setCode(currentCode);
       }
     };
 
     socket.on("codeUpdate", handleCodeUpdate);
-    socket.on("codeOutput", handleCodeOutput);
-
+    socket.on("meetingState", handleMeetingState);
+    
     // Cleanup the socket listeners
     return () => {
       socket.off("codeUpdate", handleCodeUpdate);
-      socket.off("codeOutput", handleCodeOutput);
+      socket.off("meetingState", handleMeetingState);
     };
-  }, []);
+  }, [meetingCode]);
 
   // Process console output to properly display input/output
   useEffect(() => {

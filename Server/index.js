@@ -195,6 +195,18 @@ io.on("connection", (socket) => {
         io.to(meetingCode).emit("codeUpdate", { code, language });
     });
 
+    // Handle meeting state request
+    socket.on("getMeetingState", ({ meetingCode }) => {
+        console.log(`Meeting state requested for ${meetingCode}`);
+        if (meetingCodes[meetingCode]) {
+            // Send the current meeting state to the requesting user
+            socket.emit("meetingState", {
+                code: meetingCodes[meetingCode],
+                language: meetingCodes[meetingCode].language || "javascript"
+            });
+        }
+    });
+
     // Handle code execution
     socket.on("runCode", ({ code, language, input, meetingCode }) => {
         console.log(`Executing code in language: ${language} for meeting ${meetingCode}`);
