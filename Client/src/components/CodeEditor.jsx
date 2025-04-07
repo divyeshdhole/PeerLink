@@ -269,7 +269,7 @@ const CodeEditor = ({ meetingCode, onRunCode, consoleOutput }) => {
 
     // Listen for meeting state updates
     const handleMeetingState = ({ code: currentCode, language: currentLanguage }) => {
-      console.log(`Received meeting state - language: ${currentLanguage}`);
+      console.log(`Received meeting state - language: ${currentLanguage}, code length: ${currentCode?.length || 0}`);
       
       if (currentLanguage && LANGUAGES.some(l => l.id === currentLanguage)) {
         setLanguage(currentLanguage);

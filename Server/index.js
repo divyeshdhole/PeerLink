@@ -55,7 +55,7 @@ app.use((req, res, next) => {
 
 // Store meetings and code data
 let meetings = {}; // Format: { meetingCode: [{ name, id, peerId }, ...] }
-let meetingCodes = {}; // Format: { meetingCode: lastKnownCode }
+let meetingCodes = {}; // Format: { meetingCode: { code: string, language: string } }
 let hosted = {}; // Format: {meetingCode: hostname}
 
 // Configuration for Judge0 API
@@ -145,7 +145,7 @@ io.on("connection", (socket) => {
 
         if (!meetings[meetingCode]) {
             meetings[meetingCode] = [];
-            meetingCodes[meetingCode] = "";
+            meetingCodes[meetingCode] = { code: "", language: "javascript" };
             hosted[meetingCode] = userName;
         }
 
@@ -158,7 +158,7 @@ io.on("connection", (socket) => {
         io.to(meetingCode).emit("hostName", hosted[meetingCode]);
 
         // Send code update to new user
-        socket.emit("codeUpdate", { code: meetingCodes[meetingCode] });
+        socket.emit("codeUpdate", { code: meetingCodes[meetingCode].code });
 
         // Notify all users in the meeting
         io.to(meetingCode).emit("updateList", meetings[meetingCode]);
@@ -183,14 +183,26 @@ io.on("connection", (socket) => {
     // Handle code change events
     socket.on("codeChange", ({ meetingCode, code, language }) => {
         console.log(`Code changed in meeting ${meetingCode}, language: ${language}`);
-        meetingCodes[meetingCode] = code; // Update last known code
+        // Initialize the meeting code object if it doesn't exist
+        if (!meetingCodes[meetingCode]) {
+            meetingCodes[meetingCode] = { code: "", language: "javascript" };
+        }
+        // Update the code and language
+        meetingCodes[meetingCode].code = code;
+        meetingCodes[meetingCode].language = language;
         socket.to(meetingCode).emit("codeUpdate", { code, language });
     });
 
     // Handle language change events
     socket.on("languageChange", ({ meetingCode, code, language }) => {
         console.log(`Language changed in meeting ${meetingCode} to ${language}`);
-        meetingCodes[meetingCode] = code; // Update last known code
+        // Initialize the meeting code object if it doesn't exist
+        if (!meetingCodes[meetingCode]) {
+            meetingCodes[meetingCode] = { code: "", language: "javascript" };
+        }
+        // Update the code and language
+        meetingCodes[meetingCode].code = code;
+        meetingCodes[meetingCode].language = language;
         // Broadcast to all users including sender to ensure synchronization
         io.to(meetingCode).emit("codeUpdate", { code, language });
     });
@@ -201,8 +213,8 @@ io.on("connection", (socket) => {
         if (meetingCodes[meetingCode]) {
             // Send the current meeting state to the requesting user
             socket.emit("meetingState", {
-                code: meetingCodes[meetingCode],
-                language: meetingCodes[meetingCode].language || "javascript"
+                code: meetingCodes[meetingCode].code,
+                language: meetingCodes[meetingCode].language
             });
         }
     });
