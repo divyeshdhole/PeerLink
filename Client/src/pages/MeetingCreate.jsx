@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 // Initialize socket connection outside the component to ensure only one connection
 import socket from "../socket";
@@ -11,24 +11,8 @@ const MeetingCreate = ({ setJoined }) => {
     const [userName, setUserName] = useState(""); // User's name state
     const [activeTab, setActiveTab] = useState("create"); // Track active tab
     const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState(""); // Error message state
 
     const navigate = useNavigate();
-    const location = useLocation();
-
-    // Check for error message in location state
-    useEffect(() => {
-        if (location.state && location.state.error) {
-            setError(location.state.error);
-            
-            // Auto-dismiss error after 5 seconds
-            const timer = setTimeout(() => {
-                setError("");
-            }, 5000);
-            
-            return () => clearTimeout(timer);
-        }
-    }, [location]);
 
     // Generate a random meeting code
     const generateMeetingCode = () => {
@@ -115,13 +99,6 @@ const MeetingCreate = ({ setJoined }) => {
                         PeerLink
                     </h1>
                 </div>
-                
-                {/* Error Message */}
-                {error && (
-                    <div className="mb-6 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg">
-                        {error}
-                    </div>
-                )}
                 
                 {/* User Name Section */}
                 <div className="mb-6">
