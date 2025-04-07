@@ -16,7 +16,6 @@ const MeetingPage = () => {
     const [notification, setNotification] = useState(null);
     const [showShareLink, setShowShareLink] = useState(false);
     const [isOnline, setIsOnline] = useState(navigator.onLine);
-    const [usernameError, setUsernameError] = useState(null);
     const userName = localStorage.getItem("userName");
     
     const mountedRef = useRef(false);
@@ -216,7 +215,6 @@ const MeetingPage = () => {
         socket.off("hostName");
         socket.off("updateList");
         socket.off("joined");
-        socket.off("meetingClosed");
 
         // Set up new listeners
         socket.on("hostName", handleHostUpdate);
@@ -224,27 +222,6 @@ const MeetingPage = () => {
         socket.on("joined", () => {
             console.log("Joined event received");
             if (!joined) setJoined(true);
-        });
-        
-        // Handle meeting closed event
-        socket.on("meetingClosed", (data) => {
-            console.log("Meeting closed event received:", data);
-            
-            // Show notification
-            setNotification({
-                message: data.message,
-                type: 'error',
-                timestamp: Date.now()
-            });
-            
-            // Redirect to home page after a delay
-            setTimeout(() => {
-                navigate("/", { 
-                    state: { 
-                        error: "The meeting has ended because all participants have left." 
-                    } 
-                });
-            }, 3000);
         });
 
         // Join the meeting if not already joined
@@ -256,14 +233,13 @@ const MeetingPage = () => {
         // Get the host information
         socket.emit("getHost", { meetingCode });
 
-        return () => {
+            return () => {
             console.log("Cleaning up socket connections in MeetingPage");
             socket.off("hostName");
             socket.off("updateList");
             socket.off("joined");
-            socket.off("meetingClosed");
         };
-    }, [meetingCode, userName, joined, handleHostUpdate, handleUserUpdate, navigate]);
+    }, [meetingCode, userName, joined, handleHostUpdate, handleUserUpdate]);
 
     const handleRunCode = useCallback(({ code, language, input }) => {
         console.log(`Running code in ${language} with input:`, input);
@@ -312,34 +288,6 @@ const MeetingPage = () => {
             socket.off('codeOutput', handleCodeOutput);
         };
     }, []);
-
-    // Handle username taken error
-    useEffect(() => {
-        const handleUsernameTaken = (data) => {
-            console.log("Username taken error:", data);
-            setUsernameError(data.message);
-            
-            // Show notification
-            setNotification({
-                message: data.message,
-                type: 'error',
-                timestamp: Date.now()
-            });
-            
-            // Redirect to username page after a delay with error message
-            setTimeout(() => {
-                navigate(`/${meetingCode}/username`, { 
-                    state: { error: data.message } 
-                });
-            }, 2000);
-        };
-
-        socket.on("usernameTaken", handleUsernameTaken);
-
-        return () => {
-            socket.off("usernameTaken", handleUsernameTaken);
-        };
-    }, [meetingCode, navigate]);
 
     return (
         <div className="flex flex-col min-h-screen">
