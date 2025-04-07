@@ -305,7 +305,7 @@ const MeetingPage = () => {
             
             // Redirect to username page after a delay with error message
             setTimeout(() => {
-                navigate(`/username/${meetingCode}`, { 
+                navigate(`/${meetingCode}/username`, { 
                     state: { error: data.message } 
                 });
             }, 2000);
