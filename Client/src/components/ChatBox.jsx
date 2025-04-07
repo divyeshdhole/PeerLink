@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import socket from "../socket";
 
-const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB max file size for regular files
-const MAX_ZIP_SIZE = 10 * 1024 * 1024; // 10MB max file size for zip files
+const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB max file size
 const MAX_IMAGE_DIMENSION = 1200; // Max width/height for images
 const IMAGE_QUALITY = 0.7; // JPEG quality for compression
 
@@ -12,7 +11,6 @@ const ChatBox = () => {
     const [showAttachmentMenu, setShowAttachmentMenu] = useState(false);
     const [attachment, setAttachment] = useState(null);
     const [isUploading, setIsUploading] = useState(false);
-    const [uploadProgress, setUploadProgress] = useState(0);
     const fileInputRef = useRef(null);
     const meetingCode = localStorage.getItem("meetingCode");
     const userName = localStorage.getItem("userName");
@@ -116,12 +114,9 @@ const ChatBox = () => {
         const file = e.target.files[0];
         if (!file) return;
         
-        // Check file size based on file type
-        const isZipFile = file.name.toLowerCase().endsWith('.zip');
-        const maxSize = isZipFile ? MAX_ZIP_SIZE : MAX_FILE_SIZE;
-        
-        if (file.size > maxSize) {
-            alert(`File too large. Maximum size is ${maxSize / (1024 * 1024)}MB for ${isZipFile ? 'zip' : 'regular'} files.`);
+        // Check file size
+        if (file.size > MAX_FILE_SIZE) {
+            alert(`File too large. Maximum size is ${MAX_FILE_SIZE / (1024 * 1024)}MB.`);
             return;
         }
         
@@ -136,7 +131,7 @@ const ChatBox = () => {
                     size: compressedFile.size
                 });
             } else {
-                // For non-image files, just use as is
+                // For non-image files, just use as is (with size limit)
                 setAttachment({
                     file,
                     name: file.name,
@@ -208,23 +203,15 @@ const ChatBox = () => {
         if ((!message.trim() && !attachment) || isUploading) return;
         
         try {
-            setIsUploading(true);
-            setUploadProgress(0);
+            setIsUploading(attachment !== null);
             
             let attachmentData = null;
             
             if (attachment) {
-                // Convert file to base64 with progress tracking
+                // Convert file to base64
                 const reader = new FileReader();
                 
                 const fileBase64 = await new Promise((resolve, reject) => {
-                    reader.onprogress = (event) => {
-                        if (event.lengthComputable) {
-                            const progress = (event.loaded / event.total) * 100;
-                            setUploadProgress(Math.round(progress));
-                        }
-                    };
-                    
                     reader.readAsDataURL(attachment.file);
                     reader.onload = () => resolve(reader.result);
                     reader.onerror = error => reject(error);
@@ -252,13 +239,11 @@ const ChatBox = () => {
             
             setMessage("");
             setAttachment(null);
-            setUploadProgress(0);
             setIsUploading(false);
         } catch (error) {
             console.error("Error sending message:", error);
             setIsUploading(false);
-            setUploadProgress(0);
-            alert("Failed to send message. The file may be too large or there was an error processing it.");
+            alert("Failed to send message. The file may be too large.");
         }
     }, [message, attachment, isUploading, meetingCode, userName]);
 
@@ -474,21 +459,6 @@ const ChatBox = () => {
             {attachment && (
                 <div className="px-4 py-2 border-t border-slate-200">
                     {renderAttachmentPreview(attachment)}
-                </div>
-            )}
-            
-            {/* Add upload progress indicator */}
-            {isUploading && (
-                <div className="px-4 py-2 bg-gray-100">
-                    <div className="w-full bg-gray-200 rounded-full h-2.5">
-                        <div 
-                            className="bg-blue-600 h-2.5 rounded-full transition-all duration-300" 
-                            style={{ width: `${uploadProgress}%` }}
-                        ></div>
-                    </div>
-                    <p className="text-sm text-gray-600 mt-1">
-                        Uploading: {uploadProgress}%
-                    </p>
                 </div>
             )}
             
