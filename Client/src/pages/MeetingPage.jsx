@@ -216,6 +216,7 @@ const MeetingPage = () => {
         socket.off("hostName");
         socket.off("updateList");
         socket.off("joined");
+        socket.off("meetingClosed");
 
         // Set up new listeners
         socket.on("hostName", handleHostUpdate);
@@ -223,6 +224,23 @@ const MeetingPage = () => {
         socket.on("joined", () => {
             console.log("Joined event received");
             if (!joined) setJoined(true);
+        });
+        
+        // Handle meeting closed event
+        socket.on("meetingClosed", () => {
+            console.log("Meeting closed event received:");
+            
+            // Show notification
+            setNotification({
+                message: "Meeting has been closed as all participants have left",
+                type: 'error',
+                timestamp: Date.now()
+            });
+            
+            // Redirect to home page with error message after 3 seconds
+            setTimeout(() => {
+                navigate("/", { state: { error: "Meeting has been closed as all participants have left" } });
+            }, 3000);
         });
 
         // Join the meeting if not already joined
@@ -234,13 +252,14 @@ const MeetingPage = () => {
         // Get the host information
         socket.emit("getHost", { meetingCode });
 
-            return () => {
+        return () => {
             console.log("Cleaning up socket connections in MeetingPage");
             socket.off("hostName");
             socket.off("updateList");
             socket.off("joined");
+            socket.off("meetingClosed");
         };
-    }, [meetingCode, userName, joined, handleHostUpdate, handleUserUpdate]);
+    }, [meetingCode, userName, joined, handleHostUpdate, handleUserUpdate, navigate]);
 
     const handleRunCode = useCallback(({ code, language, input }) => {
         console.log(`Running code in ${language} with input:`, input);
