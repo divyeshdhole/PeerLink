@@ -4,7 +4,7 @@ import socket from "../socket";
 
 // Import loader for language support
 import { loader } from '@monaco-editor/react';
-
+import { FaRegStopCircle } from "react-icons/fa";
 // Configure Monaco loader to load additional language features
 loader.config({
   paths: {
@@ -139,7 +139,7 @@ const CodeEditor = ({ meetingCode, onRunCode, consoleOutput }) => {
     const savedLanguage = localStorage.getItem(`language_${meetingCode}`);
     return savedLanguage || "javascript";
   });
-  
+  const [execution, setExecution] = useState(false);
   // Get initial code based on saved language or default to javascript
   const [code, setCode] = useState(() => {
     const savedLanguage = localStorage.getItem(`language_${meetingCode}`);
@@ -329,7 +329,11 @@ const CodeEditor = ({ meetingCode, onRunCode, consoleOutput }) => {
   const handleRunCode = useCallback(() => {
     setIsRunning(true);
     setHasError(false); // Reset error state when running new code
-    
+    setExecution(true);
+    setTimeout(()=> {
+      setIsRunning(false);
+      setExecution(false);
+    }, 4000);
     try {
       // Validate that we have code to run
       if (!code || code.trim() === '') {
@@ -555,7 +559,12 @@ const CodeEditor = ({ meetingCode, onRunCode, consoleOutput }) => {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           {isRunning ? "Running..." : (hasError ? "Run (Fix Errors)" : "Run Code")}
+         
         </button>
+        {execution ? <button className="text-lg cursor-pointer" onClick={() => {
+          setExecution(false);
+          setIsRunning(false);
+        }}><FaRegStopCircle /></button> : ""}
         <button
           onClick={() => {
             navigator.clipboard.writeText(code);
