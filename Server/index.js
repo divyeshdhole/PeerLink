@@ -353,8 +353,8 @@ io.on("connection", (socket) => {
                     language_id: languageId,
                     stdin: input || '',
                     redirect_stderr_to_stdout: true,
-                    // Add compiler options only for compiled languages (not Python)
-                    compiler_options: ['cpp', 'java', 'csharp'].includes(language) ? '-Wall' : null,
+                    // Add compiler options only for C++
+                    compiler_options: language === 'cpp' ? '-Wall' : null,
                     command_line_arguments: '',
                     // Increase resource limits slightly
                     cpu_time_limit: 5,         // 5 seconds
